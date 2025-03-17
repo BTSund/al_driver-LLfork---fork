@@ -8,7 +8,7 @@ import helpers
 class bool_block:
 
     def __init__(self):
-        self.keys = [["USECOUL:", None], ["FITCOUL:", None], ["USEPOVR:", None], ["FITPOVR:", None], ["USE3BCH:", None],  ["USE4BCH:", None], ["EXCL1B:", "False"], ["EXCL2B:", "False"]]
+        self.keys = [["USECOUL:", "False"], ["FITCOUL:", "False"], ["USEPOVR:", "False"], ["FITPOVR:", "False"], ["USE3BCH:", "False"],  ["USE4BCH:","False"], ["EXCL1B:", "False"], ["EXCL2B:", "False"]]
         
     def set_block(self,param_data):
         

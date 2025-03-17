@@ -36,15 +36,18 @@ def writeframe(frame, badness, badstream0, badstream1, badstream2):
     else:
         print("Something strange happened... ")
         print("In writeframe, badness is:",badness)
-        exit();
-        
-    boxl_x = frame[5]; boxl_x = boxl_x.split()[-1]
-    boxl_y = frame[6]; boxl_y = boxl_y.split()[-1]
-    boxl_z = frame[7]; boxl_z = boxl_z.split()[-1]
+        exit()
+    
+    boxl_xy = frame[5]; boxl_xy = boxl_xy.split()[-3]
+    boxl_x = frame[5]; boxl_x = boxl_x.split()[-2]
+    boxl_xz = frame[6]; boxl_xz = boxl_xz.split()[-3]
+    boxl_y = frame[6]; boxl_y = boxl_y.split()[-2]
+    boxl_yz = frame[7]; boxl_yz = boxl_yz.split()[-3]
+    boxl_z = frame[7]; boxl_z = boxl_z.split()[-2]
     
     xyz_text = []
     xyz_text.append(frame[3]) # Number of atoms
-    xyz_text.append(boxl_x + " " + boxl_y + " " + boxl_z + '\n')
+    xyz_text.append("NON_ORTHO " + boxl_x + " "+ " 0.0 "+ " 0.0 "+ boxl_xy +" "+ boxl_y + " 0.0 " + boxl_xz + " " + boxl_yz +" "+ boxl_z + ' \n')
     
     fields = frame[8].split()
     

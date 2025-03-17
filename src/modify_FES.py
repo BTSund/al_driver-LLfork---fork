@@ -158,11 +158,15 @@ def subtract_off(param_file, md_driver, method, traj_files, temper_files=None):
         helpers.run_bash_cmnd("rm -f subtracted.xyzf")
         ofstream = open("subtracted.xyzf",'a')
         
-        print("\t\tReading temperatures from:",temper_files[i])
+        if temper_files is not None:
+            print("\t\tReading temperatures from:",temper_files[i])
         
         temperature = 0.0
+        temperatures = []
         if temper_files is not None:
             temperatures = helpers.readlines(temper_files[i])
+        else:
+            temperatures.append(temperature)
 
         print("\t\tOpening file:","b-labeled_subtracted." + param_file.split("/")[-1] + ".traj_file_idx-" + str(i)  + ".dat")
         helpers.run_bash_cmnd("rm -f b-labeled_subtracted." + param_file.split("/")[-1] + ".traj_file_idx-" + str(i)  + ".dat")
@@ -234,9 +238,9 @@ def subtract_off(param_file, md_driver, method, traj_files, temper_files=None):
                 
             # Obtain the corresponding F/E/S from the reference md code
             
-            print("\t\t\t Running file:",traj_files[i],"frame",j, "with T = ",int(float(temperatures[j])))
+            print("\t\t\t Running file:",traj_files[i],"frame",j, "with T = ",int(float(0)))
 
-            tmp_ener, tmp_stress, force_file = get_FES("tmp.xyz",param_file, md_driver, method, int(float(temperatures[j]))) 
+            tmp_ener, tmp_stress, force_file = get_FES("tmp.xyz",param_file, md_driver, method, int(float(0))) 
 
             tmp_forces = helpers.readlines(force_file)
             
