@@ -193,6 +193,8 @@ def gen_weights_one(w_method, this_ALC, b_labeled_i, natoms_i):
     E. w = n_atoms^a0
     
     F. w = a0*exp(a1[ X/n_atoms-a2]/a3)
+
+    G. w = a0*exp(a1[|X|-a2]/a3)
     
     Example wXX value: ["C",[a0,a1,a2]]
     
