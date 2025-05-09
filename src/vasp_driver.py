@@ -551,11 +551,16 @@ def post_process(*argv, **kwargs):
         helpers.run_bash_cmnd("rm -f OUTCAR.xyzf")
         
         outcar_list = []
+        case_list = []
         
         for j in range(args_cases):
         
             outcar_list += sorted(glob.glob("CASE-" + repr(j) + "/*.OUTCAR"))
-            
+            case_list += [j]*len(sorted(glob.glob("CASE-" + repr(j) + "/*.OUTCAR")))
+        print("NOTICE: ", len(outcar_list))
+        print(sorted(glob.glob("CASE-" + repr(j) + "/*.OUTCAR")))
+        print("NOTICE: ", len(case_list))
+        print(case_list)
         for j in range(len(outcar_list)):
         
             # Make sure the job completed within requested NELM
@@ -626,10 +631,12 @@ def post_process(*argv, **kwargs):
             
                 if os.path.isfile("OUTCAR.xyzf"):
             
-                    helpers.cat_specific("tmp.dat", ["OUTCAR.xyzf", outcar_list[j] + ".xyzf"])
-                    helpers.cat_specific("tmp.tmp", ["OUTCAR.temps", tmpfile])                    
+                    helpers.cat_specific("tmp.dat", ["OUTCAR.xyzf", (fn := outcar_list[j] + ".xyzf")])
+                    with open(fn) as inp, open("OUTCAR.cases", "a") as out: out.write(f"{case_list[j]}\n" * ((sum(1 for _ in inp)-2)*3+12))
+                    helpers.cat_specific("tmp.tmp", ["OUTCAR.temps", tmpfile])                
                 else:
-                    helpers.cat_specific("tmp.dat", [outcar_list[j] + ".xyzf"])
+                    helpers.cat_specific("tmp.dat", [(fn := outcar_list[j] + ".xyzf")])
+                    with open(fn) as inp, open("OUTCAR.cases", "a") as out: out.write(f"{case_list[j]}\n" *((sum(1 for _ in inp)-2)*3+12))
                     helpers.cat_specific("tmp.tmp", [tmpfile])                    
                 
                 helpers.run_bash_cmnd("mv tmp.dat OUTCAR.xyzf")

@@ -173,7 +173,7 @@ def split_amat(amat, bvec, nproc, ppn):
         
     return file_idx+1
     
-def gen_weights_one(w_method, this_ALC, b_labeled_i, natoms_i):
+def gen_weights_one(w_method, this_ALC, b_labeled_i, natoms_i, ncases_i):
 
     """ 
     Generates weights based on user requested method/parameters, current ALC 
@@ -272,6 +272,9 @@ def gen_weights_one(w_method, this_ALC, b_labeled_i, natoms_i):
             exit()
     
         weight =  float(w_method[1][0]) * m.exp( float(w_method[1][1]) * (abs(float(b_labeled_i))-float(w_method[1][2])) / float(w_method[1][3]) )   
+
+    elif w_method[0] == "H":
+        weight =  float(w_method[1][int(ncases_i)]) 
     else:
         print("ERROR: Unknown weight method!")
         exit()
@@ -280,7 +283,7 @@ def gen_weights_one(w_method, this_ALC, b_labeled_i, natoms_i):
         
         
     
-def gen_weights(w_method, this_ALC, b_labeled_i, natoms_i):
+def gen_weights(w_method, this_ALC, b_labeled_i, natoms_i, ncases_i):
 
     """ 
     Generates weights based on *A SET* of  user requested method/parameters, 
@@ -322,7 +325,7 @@ def gen_weights(w_method, this_ALC, b_labeled_i, natoms_i):
     
     for i in range(len(methods)):
     
-        weight *= gen_weights_one( [methods[i], wparams[i]], this_ALC, b_labeled_i, natoms_i)
+        weight *= gen_weights_one( [methods[i], wparams[i]], this_ALC, b_labeled_i, natoms_i, ncases_i)
         
     return weight
 
@@ -796,7 +799,7 @@ def build_amat(my_ALC, **kwargs):
             helpers.run_bash_cmnd("cp " + args["prev_gen_path"] + "/traj_list.dat" + " " + GEN_FF + "/traj_list.dat")
     
             # Get the number of files and number of frames in each file
-    
+            
             if args["prev_qm_all_path"] and args["do_cluster"]:
                 if current_iter == 0:
                     nfiles     += 1
@@ -806,6 +809,7 @@ def build_amat(my_ALC, **kwargs):
                     nframes_all = helpers.count_xyzframes_general(args["prev_qm_all_path"] + "/OUTCAR.xyzf")
                     
             if args["prev_qm_20_path"]:
+                helpers.run_bash_cmnd(f"cp " + args["prev_qm_20_path"] + "/OUTCAR.cases" + " GEN_FF")
                 if current_iter == 0:
                     nfiles     += 1
                     nframes_20 = helpers.count_xyzframes_general(args["prev_qm_20_path"] + "/OUTCAR.xyzf")
@@ -891,7 +895,7 @@ def build_amat(my_ALC, **kwargs):
                 ifstream.write(repr(nframes_all) + " " + args["prev_qm_all_path"] + "/OUTCAR.xyzf G_ G_ G_\n")
                 
             ifstream.close()
-            
+             
         ################################
         # 2a. Pre-processing:
         #     ... If hierarchical building is being used, subtract off contributions from other parameter files
@@ -1115,6 +1119,10 @@ def solve_amat(my_ALC, **kwargs):
     
         ifstream = open("natoms.txt",'r')
         natoms   = ifstream.readlines()
+        ifstream .close() 
+
+        ifstream = open("OUTCAR.cases",'r')
+        ncase   = ifstream.readlines()
         ifstream .close()    
     
         for i in range(len(contents)):
@@ -1124,17 +1132,17 @@ def solve_amat(my_ALC, **kwargs):
     
             if "+1" in tag:
                 if "G_" in tag:
-                    weightfi.write(str(gen_weights(args["weights_energy_gas"], my_ALC, val, natoms[i]))+'\n')
+                    weightfi.write(str(gen_weights(args["weights_energy_gas"], my_ALC, val, natoms[i], ncase[i]))+'\n')
                 else:
-                    weightfi.write(str(gen_weights(args["weights_energy"]    , my_ALC, val, natoms[i]))+'\n')
+                    weightfi.write(str(gen_weights(args["weights_energy"]    , my_ALC, val, natoms[i], ncase[i]))+'\n')
                     
             elif "s_" in tag:
-                weightfi.write(str(gen_weights(args["weights_stress"], my_ALC, val, natoms[i]))+'\n')
+                weightfi.write(str(gen_weights(args["weights_stress"], my_ALC, val, natoms[i], ncase[i]))+'\n')
             else:
                 if "G_" in tag:
-                    weightfi.write(str(gen_weights(args["weights_force_gas"], my_ALC, val, natoms[i]))+'\n')
+                    weightfi.write(str(gen_weights(args["weights_force_gas"], my_ALC, val, natoms[i], ncase[i]))+'\n')
                 else:
-                    weightfi.write(str(gen_weights(args["weights_force"],     my_ALC, val, natoms[i]))+'\n')
+                    weightfi.write(str(gen_weights(args["weights_force"],     my_ALC, val, natoms[i], ncase[i]))+'\n')
                 
         weightfi.close()
     
